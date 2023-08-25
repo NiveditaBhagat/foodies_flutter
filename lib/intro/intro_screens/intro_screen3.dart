@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:foodies_flutter/Colors.dart';
-import 'package:foodies_flutter/authentication/Sign_up.dart';
+import 'package:foodies_flutter/authentication/login_screen.dart';
+
+import 'package:foodies_flutter/authentication/signup_screen.dart';
 import 'package:foodies_flutter/widgets/button_orange.dart';
 import 'package:lottie/lottie.dart';
 
@@ -72,7 +74,7 @@ class _IntroThreeState extends State<IntroThree> {
               top: 645.h,
               left: 26.w,
               child: CustumButton(
-                onTap: (){Navigator.push(context, MaterialPageRoute(builder: ((context) => SignUpScreen())));}
+                onTap: (){Navigator.push(context, MaterialPageRoute(builder: ((context) => LoginScreen())));}
               
               , text: 'GET STARTED')
             ),
