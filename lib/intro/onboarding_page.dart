@@ -4,7 +4,7 @@ import 'package:lottie/lottie.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:foodies_flutter/intro/intro_screens/intro_screen1.dart';
-
+import 'dart:ui';
 import 'intro_screens/intro_screen2.dart';
 import 'intro_screens/intro_screen3.dart';
 
@@ -41,7 +41,7 @@ class _IntroScreenState extends State<IntroScreen> {
             children: [
              IntroOne(),
              IntroTwo(),
-             IntroThree()
+             IntroThree(),
             ],
           ),
           Container(
@@ -62,7 +62,7 @@ class _IntroScreenState extends State<IntroScreen> {
                
                 ),
             ): Positioned(
-                 left: 70.w,
+                  left: 70.w,
                   bottom: 76.h,
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
