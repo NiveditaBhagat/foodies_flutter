@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:foodies_flutter/Colors.dart';
 import 'package:foodies_flutter/widgets/button_orange.dart';
 import 'package:foodies_flutter/widgets/text_field.dart';
+import 'package:foodies_flutter/maps_screens/google_maps.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -12,6 +15,32 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _nameController = TextEditingController();
+
+  void _signUp() async {
+    try {
+      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
+
+      if (userCredential.user != null) {
+        await _firestore.collection('users').doc(userCredential.user!.uid).set({
+          'name': _nameController.text,
+          'email': _emailController.text,
+          'password': _passwordController.text, // Note: Storing passwords in plain text is not secure, consider hashing.
+        });
+
+        print('User signed up and data saved in Firestore.');
+      }
+    } catch (e) {
+      print('Error signing up user: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -69,7 +98,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                         SizedBox(height: 10.h,),
-                    CustumTextFeild(hintText: 'Name' , isObscureText: false,),
+                    CustumTextFeild(hintText: 'Name' , isObscureText: false,controller: _nameController,),
                     SizedBox(height: 26.h,),
                        Text(
                           'EMAIL',
@@ -79,17 +108,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                          SizedBox(height: 10.h,),
-                         CustumTextFeild(hintText: 'Email' , isObscureText: false,),
-                          SizedBox(height: 26.h,),
-                         Text(
-                          'PHONE NO.',
-                          style: TextStyle(
-                            color: BoldTextColor,
-                            fontSize: 14.sp,
-                          ),
-                        ),
-                         SizedBox(height: 10.h,),
-                         CustumTextFeild(hintText: 'Phone no.' , isObscureText: false,),
+                         CustumTextFeild(hintText: 'Email' , isObscureText: false,controller: _emailController,),
+                       
                           SizedBox(height: 26.h,),
                           Text(
                           'PASSWORD',
@@ -99,9 +119,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           ),
                         ),
                          SizedBox(height: 10.h,),
-                        CustumTextFeild(hintText: 'Password' , isObscureText: true,),
-                           SizedBox(height: 26.h,),
-                        CustumButton(onTap: (){}, text: 'SIGN UP')
+                        CustumTextFeild(hintText: 'Password' , isObscureText: true,controller: _passwordController,),
+                           SizedBox(height: 46.h,),
+                        CustumButton(onTap: (){
+                          _signUp();
+                           Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MapScreen()), (route) => false);
+                        }, text: 'SIGN UP'),
+                        SizedBox(height: 200.h,)
                       ],
                     ),
                   ),
