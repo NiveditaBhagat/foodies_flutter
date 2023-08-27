@@ -1,11 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:foodies_flutter/Colors.dart';
+import 'package:foodies_flutter/authentication/signup_screen.dart';
+import 'package:foodies_flutter/authentication/verify.dart';
+import 'package:foodies_flutter/maps_screens/google_maps.dart';
 import 'package:foodies_flutter/widgets/button_orange.dart';
 import 'package:foodies_flutter/widgets/text_field.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+    static String verify=""; 
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -13,6 +19,9 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   TextEditingController countrycode = TextEditingController();
+   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   var phone ='';
 
   @override
@@ -21,7 +30,20 @@ class _LoginScreenState extends State<LoginScreen> {
     countrycode.text = "+91";
     super.initState();
   }
+ void _login() async {
+    try {
+      UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+        email: _emailController.text,
+        password: _passwordController.text,
+      );
 
+      if (userCredential.user != null) {
+        print('User logged in successfully: ${userCredential.user!.email}');
+      }
+    } catch (e) {
+      print('Error logging in: $e');
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -106,11 +128,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                              width: 40.w,
                                              child: TextField(
                                               cursorColor: OrangeColor,
-                          controller: countrycode,
-                          keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                          ),
+                                       controller: countrycode,
+                                           keyboardType: TextInputType.number,
+                                     decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                      ),
                                              ),
                                            ),
                                            Text(
@@ -122,6 +144,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                            ),
                                            Expanded(
                           child: TextField(
+                            cursorColor: OrangeColor,
                             onChanged: (value){
                               phone=value;
                             },
@@ -136,7 +159,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                      ),
                        ),             
               SizedBox(height: 10.h,),
-                         CustumButton(onTap: (){}, text: "SEND OTP"),
+                         CustumButton(onTap: ()async{
+                          await FirebaseAuth.instance.verifyPhoneNumber(
+                      phoneNumber: '${countrycode.text+phone}',
+                      verificationCompleted: (PhoneAuthCredential credential) {},
+                      verificationFailed: (FirebaseAuthException e) {},
+                      codeSent: (String verificationId, int? resendToken) {
+                        LoginScreen.verify=verificationId;
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=>Verify()));
+                      },
+                      codeAutoRetrievalTimeout: (String verificationId) {},
+                       );
+                         }, text: "SEND OTP"),
                          Padding(
                            padding:  EdgeInsets.only(top: 30.h, left: 15.w, right: 15.w ),
                            child: Row(
@@ -148,13 +182,18 @@ class _LoginScreenState extends State<LoginScreen> {
                                   color: SmallTextColor,
                                 ),
                                 ),
-                                   Text("SIGN UP",
-                                style: TextStyle(
+                                   InkWell(
+                                    onTap: () {
+                                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SignUpScreen()));
+                                    },
+                                     child: Text("SIGN UP",
+                                  style: TextStyle(
                                   fontSize: 14.sp,
-                                  color: OrangeColor,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                                ),
+                                   color: OrangeColor,
+                                   fontWeight: FontWeight.bold,
+                                     ),
+                                    ),
+                                   ),
                                 
                             ],
                            ),
@@ -169,11 +208,14 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                             ),
                             SizedBox(height: 15.h,),
-                              CustumTextFeild(hintText: 'Email' , isObscureText: false,),
+                              CustumTextFeild(hintText: 'Email' , isObscureText: false,controller: _emailController,),
                               SizedBox(height: 15.h,),
-                                CustumTextFeild(hintText: 'Password' , isObscureText: true,),
+                                CustumTextFeild(hintText: 'Password' , isObscureText: true,controller: _passwordController,),
                                 SizedBox(height: 20,),
-                                CustumButton(onTap: (){}, text: "LOG IN"),
+                                CustumButton(onTap: (){
+                                  _login();
+                                  Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>MapScreen()), (route) => false);
+                                }, text: "LOG IN"),
                                 SizedBox(height: 15.h,),
                       ],
                     ),

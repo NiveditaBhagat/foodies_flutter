@@ -6,9 +6,11 @@ import '../Colors.dart';
 class CustumTextFeild extends StatefulWidget {
   final String ?hintText;
   final bool? isObscureText;
+  final TextEditingController? controller;
   CustumTextFeild ({
    required this.hintText,
    required this.isObscureText,
+   required this.controller,
    });
 
   @override
@@ -19,6 +21,7 @@ class _CustumTextFeildState extends State<CustumTextFeild > {
   @override
   Widget build(BuildContext context) {
     return     TextField(
+      controller: widget.controller,
       obscureText: widget.isObscureText!,
                             cursorColor: OrangeColor,
                             decoration: InputDecoration(
